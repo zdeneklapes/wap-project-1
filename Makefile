@@ -1,15 +1,7 @@
-docs:
-	npx jsdoc -c jsdoc.json
-
-test:
-	node test.js
-
-ukazka:
-	node src/ukázkový.mjs
-
 pack:
-	zip -r xlapes02.zip src Makefile README.md jsdoc.json
+	zip -r xlapes02.zip primes.mjs primes.test.mjs Makefile README.md jsdoc.json package.json package-lock.json jest.config.js test.sh doc.sh
 
 clean:
 	rm -rf docs
 	rm -f xlapes02.zip
+	rm -rf node_modules

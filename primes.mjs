@@ -1,4 +1,5 @@
 // primes.mjs
+const primeCache = new Set(); // Stores previously computed primes
 
 /**
  * Checks whether a given number is prime.
@@ -7,12 +8,17 @@
  */
 export async function isPrime(n) {
     if (n < 2) return false;
-    if (n === 2) return true;
+    if (primeCache.has(n)) return true; // Return immediately if already known
+    if (n === 2) {
+        primeCache.add(2);
+        return true;
+    }
     if (n % 2 === 0) return false;
 
     for (let i = 3; i <= Math.sqrt(n); i += 2) {
         if (n % i === 0) return false;
     }
+    primeCache.add(n);
     return true;
 }
 
@@ -30,15 +36,21 @@ export async function getPrimes(threshold) {
 }
 
 /**
- * Generator function that yields prime numbers indefinitely.
+ * Generator function that yields prime numbers indefinitely, using cached primes.
  * @yields {number} - The next prime number.
  */
 export function* iterPrimes() {
-    let num = 2;
-    const primes = [];
+    // Yield all cached primes first, ensuring they are in ascending order.
+    const sortedPrimes = [...primeCache].sort((a, b) => a - b);
+    for (const p of sortedPrimes) {
+        yield p;
+    }
+
+    // Continue generating new primes after the cached ones
+    let num = sortedPrimes.length > 0 ? sortedPrimes[sortedPrimes.length - 1] + 1 : 2;
     while (true) {
-        if (primes.every(p => num % p !== 0)) {
-            primes.push(num);
+        if (isPrime(num)) {
+            primeCache.add(num);
             yield num;
         }
         num++;

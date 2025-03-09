@@ -1,6 +1,6 @@
 {
   "source": {
-    "include": ["src"],
+    "include": ["primes.mjs"],
     "includePattern": ".+\\.(js|mjs)$",
     "excludePattern": "(node_modules/|docs)"
   },
