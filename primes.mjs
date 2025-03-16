@@ -7,6 +7,10 @@ const primeCache = new Set(); // Stores previously computed primes
  * @returns {Promise<boolean>} - Resolves to true if prime, otherwise false.
  */
 export async function isPrime(n) {
+    // if the type is not a number, return false
+    if (typeof n !== "number" || Number.isNaN(n) || !Number.isFinite(n)) {
+        return false;
+    }
     if (n < 2) return false;
     if (primeCache.has(n)) return true; // Return immediately if already known
     if (n === 2) {
@@ -30,7 +34,9 @@ export async function isPrime(n) {
 export async function getPrimes(threshold) {
     const primes = [];
     for (let i = 2; i < threshold; i++) {
-        if (await isPrime(i)) primes.push(i);
+        if (await isPrime(i)) {
+            primes.push(i);
+        }
     }
     return primes;
 }
