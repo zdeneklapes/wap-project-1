@@ -27,6 +27,35 @@ export async function isPrime(n) {
 }
 
 /**
+ * Synchronously checks whether a given number is prime.
+ * @param {number} n - The number to check.
+ * @returns {boolean} - True if prime, otherwise false.
+ */
+export function isPrimeSync(n) {
+    // if the type is not a number, or is NaN or not finite, return false
+    if (typeof n !== "number" || Number.isNaN(n) || !Number.isFinite(n)) {
+        return false;
+    }
+    if (n < 2) return false;
+    // Return immediately if n is already in the cache.
+    if (primeCache.has(n)) return true;
+    if (n === 2) {
+        primeCache.add(2);
+        return true;
+    }
+    // Even numbers greater than 2 are not prime.
+    if (n % 2 === 0) return false;
+
+    // Check for factors from 3 up to the square root of n.
+    for (let i = 3, sqrt = Math.sqrt(n); i <= sqrt; i += 2) {
+        if (n % i === 0) return false;
+    }
+    primeCache.add(n);
+    return true;
+}
+
+
+/**
  * Returns an array of all prime numbers less than a given threshold.
  * @param {number} threshold - The upper limit for prime numbers.
  * @returns {Promise<number[]>} - Resolves to an array of prime numbers.
@@ -47,15 +76,16 @@ export async function getPrimes(threshold) {
  */
 export function* iterPrimes() {
     // Yield all cached primes first, ensuring they are in ascending order.
-    const sortedPrimes = [...primeCache].sort((a, b) => a - b);
+    const sortedPrimes = primeCache
     for (const p of sortedPrimes) {
         yield p;
     }
 
     // Continue generating new primes after the cached ones
-    let num = sortedPrimes.length > 0 ? sortedPrimes[sortedPrimes.length - 1] + 1 : 2;
+    let num = sortedPrimes.size
     while (true) {
-        if (isPrime(num)) {
+        const prime = isPrimeSync(num);
+        if (prime) {
             primeCache.add(num);
             yield num;
         }

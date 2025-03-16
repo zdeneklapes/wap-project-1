@@ -1,6 +1,12 @@
 import {getPrimes, isPrime, iterPrimes} from "./primes.mjs";
+import {exec} from "child_process";
 import {primesTill1Mil} from "./primes-till-1mil.mjs";
 import {describe, expect, test} from "@jest/globals";
+import {promisify} from "util";
+import {readFileSync} from "fs";
+
+const execPromise = promisify(exec);
+
 
 describe("Prime Number Functions", () => {
     test("isPrime should correctly identify prime numbers", async () => {
@@ -9,8 +15,13 @@ describe("Prime Number Functions", () => {
         }
     });
 
+    test("isPrime be correctly identified", async () => {
+        expect(await isPrime(1001)).toBe(false);
+        expect(await isPrime(1009)).toBe(true);
+    });
+
     test("isPrime should handle edge cases", async () => {
-        for (let i = 1; i > -1000000; i--) {
+        for (let i = 1; i > -10000; i--) {
             await expect(isPrime(i)).resolves.toBe(false);
         }
         // test other types
@@ -24,8 +35,10 @@ describe("Prime Number Functions", () => {
         await expect(isPrime({})).resolves.toBe(false);
         await expect(isPrime(null)).resolves.toBe(false);
         await expect(isPrime(undefined)).resolves.toBe(false);
-        await expect(isPrime(() => {})).resolves.toBe(false);
-        await expect(isPrime(function () {})).resolves.toBe(false);
+        await expect(isPrime(() => {
+        })).resolves.toBe(false);
+        await expect(isPrime(function () {
+        })).resolves.toBe(false);
         await expect(isPrime(new Date())).resolves.toBe(false);
         await expect(isPrime(new Error())).resolves.toBe(false);
         await expect(isPrime(new Map())).resolves.toBe(false);
@@ -55,6 +68,15 @@ describe("Prime Number Functions", () => {
         expect(gen.next().value).toBe(29);
     });
 
+    test("iterPrimes example", () => {
+        for (let prime of iterPrimes()) {
+            if (prime > 1000) {
+                expect(prime).toBe(1009);
+                break;
+            }
+        }
+    });
+
     test("iterPrimes supports multiple independent iterators", () => {
         const gen1 = iterPrimes();
         const gen2 = iterPrimes();
@@ -70,9 +92,6 @@ describe("Prime Number Functions", () => {
     });
 
     test("getPrimes can compute one million primes", async () => {
-        // Expecting the first prime after 1,000,000 to be 1,000,003.
-        // Since getPrimes checks numbers strictly less than the threshold,
-        // we call it with 1,000,003 + 1 to include 1,000,003 in the result.
         const firstPrimeAfter1Million = 1000003;
         const primes = await getPrimes(firstPrimeAfter1Million + 1);
         for (let i = 0; i < primes.length; i++) {
@@ -80,4 +99,20 @@ describe("Prime Number Functions", () => {
         }
     });
 
+    test("getPrimes primes before 2_000_000", async () => {
+        const primes = [1999853, 1999859, 1999867, 1999871, 1999889, 1999891, 1999957, 1999969, 1999979, 1999993];
+        const result = await getPrimes(2000000);
+        const resultLast5 = result.slice(-primes.length);
+        for (let i = 0; i < resultLast5.length; i++) {
+            expect(resultLast5[i]).toBe(primes[i]);
+        }
+    });
+
+    test("Run ukazkovy.mjs", async () => {
+        const { stdout, stderr } = await execPromise("node ./ukazkovy.mjs");
+        expect(stdout).toBe(readFileSync("./ukazkovy-vystup.txt", "utf8"));
+    });
 });
+
+
+

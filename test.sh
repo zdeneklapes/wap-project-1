@@ -13,16 +13,16 @@ install_deps() {
 run_tests() {
     # Check if Jest is installed
     if [[ ! -f "node_modules/.bin/jest" ]]; then
-        echo "Error: Jest is not installed."
-        echo "Run './test.sh install' first to install dependencies, then try './test.sh' again."
-        exit 1
+        npm install
     fi
 
     # Run tests
+    echo "Running tests..."
     npm run test || {
         echo "Tests failed. Check the error messages above."
         exit 1
     }
+    echo "Tests passed."
 }
 
 # Parse arguments
